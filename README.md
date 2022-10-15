@@ -1,7 +1,7 @@
 # Prompt-to-Prompt:  *Latent Diffusion* and *Stable Diffusion* implementation 
 
 ![teaser](docs/teaser.png)
-### [Porject Page](https://prompt-to-prompt.github.io)&ensp;&ensp;&ensp;[Paper](https://arxiv.org/abs/2208.01626)
+### [Project Page](https://prompt-to-prompt.github.io)&ensp;&ensp;&ensp;[Paper](https://arxiv.org/abs/2208.01626)
 
 
 ## Setup
@@ -14,7 +14,7 @@ The code was tested on a Tesla V100 16GB but should work on other cards with at 
 ## Quickstart
 
 In order to get started, we recommend taking a look at our notebooks: **prompt-to-prompt_ldm** and **prompt-to-prompt_stable**.
-The notebooks contain end-to-end examples of usage of prompt-to-prompt on top of *Latent Diffusion* and *Stable Diffusion* respectively. Take a look at this notebook to learn how to use the different types of prompt edits and understand the API.
+The notebooks contain end-to-end examples of usage of prompt-to-prompt on top of *Latent Diffusion* and *Stable Diffusion* respectively. Take a look at these notebooks to learn how to use the different types of prompt edits and understand the API.
 
 
 
