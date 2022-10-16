@@ -1,7 +1,7 @@
 # Prompt-to-Prompt:  *Latent Diffusion* and *Stable Diffusion* implementation 
 
 ![teaser](docs/teaser.png)
-### [Project Page](https://prompt-to-prompt.github.io)&ensp;&ensp;&ensp;[Paper](https://arxiv.org/abs/2208.01626)
+### [Project Page](https://prompt-to-prompt.github.io)&ensp;&ensp;&ensp;[Paper](https://prompt-to-prompt.github.io/ptp_files/Prompt-to-Prompt_preprint.pdf)
 
 
 ## Setup
