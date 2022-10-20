@@ -22,7 +22,8 @@ The notebooks contain end-to-end examples of usage of prompt-to-prompt on top of
 ## Prompt Edits
 
 In our notebooks, we perform our main logic by implementing the abstract class `AttentionControl` object, of the following form:
-```
+
+```python
 class AttentionControl(abc.ABC):
     @abc.abstractmethod
     def forward (self, attn, is_cross: bool, place_in_unet: str):
@@ -32,7 +33,8 @@ class AttentionControl(abc.ABC):
 The `forward` method is called in each attention layer of the diffusion model during the image generation, and we use it to modify the weights of the attention. Our method (See Section 3 of our [paper](https://arxiv.org/abs/2208.01626)) edits images with the procedure above, and  each different prompt edit type modifies the weights of the attention in a different manner.
 
 The general flow of our code is as follows, with variations based on the attention control type:
-```
+
+```python
 prompts = ["A painting of a squirrel eating a burger", ...]
 controller = AttentionControl(prompts, ...)
 run_and_display(prompts, controller, ...)
@@ -56,12 +58,12 @@ In this case, the user changes the weight of certain tokens in the prompt, e.g.,
 
 ## Citation
 
-```
+```bibtex
 @article{hertz2022prompt,
-  title={Prompt-to-Prompt Image Editing with Cross Attention Control},
-  author={Hertz, Amir and Mokady, Ron and Tenenbaum, Jay and Aberman, Kfir and Pritch, Yael and Cohen-Or, Daniel},
-  journal={arXiv preprint arXiv:2208.01626},
-  year={2022}
+  title = {Prompt-to-Prompt Image Editing with Cross Attention Control},
+  author = {Hertz, Amir and Mokady, Ron and Tenenbaum, Jay and Aberman, Kfir and Pritch, Yael and Cohen-Or, Daniel},
+  journal = {arXiv preprint arXiv:2208.01626},
+  year = {2022},
 }
 ```
 
