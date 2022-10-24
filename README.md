@@ -1,4 +1,6 @@
-# Prompt-to-Prompt:  *Latent Diffusion* and *Stable Diffusion* implementation 
+# Prompt-to-Prompt
+
+> *Latent Diffusion* and *Stable Diffusion* Implementation
 
 ![teaser](docs/teaser.png)
 ### [Project Page](https://prompt-to-prompt.github.io)&ensp;&ensp;&ensp;[Paper](https://prompt-to-prompt.github.io/ptp_files/Prompt-to-Prompt_preprint.pdf)
@@ -13,16 +15,12 @@ The code was tested on a Tesla V100 16GB but should work on other cards with at 
 
 ## Quickstart
 
-In order to get started, we recommend taking a look at our notebooks: **prompt-to-prompt_ldm** and **prompt-to-prompt_stable**.
-The notebooks contain end-to-end examples of usage of prompt-to-prompt on top of *Latent Diffusion* and *Stable Diffusion* respectively. Take a look at these notebooks to learn how to use the different types of prompt edits and understand the API.
-
-
-
+In order to get started, we recommend taking a look at our notebooks: [**prompt-to-prompt_ldm**][p2p-ldm] and [**prompt-to-prompt_stable**][p2p-stable]. The notebooks contain end-to-end examples of usage of prompt-to-prompt on top of *Latent Diffusion* and *Stable Diffusion* respectively. Take a look at these notebooks to learn how to use the different types of prompt edits and understand the API.
 
 ## Prompt Edits
 
 In our notebooks, we perform our main logic by implementing the abstract class `AttentionControl` object, of the following form:
-```
+``` python
 class AttentionControl(abc.ABC):
     @abc.abstractmethod
     def forward (self, attn, is_cross: bool, place_in_unet: str):
@@ -32,7 +30,8 @@ class AttentionControl(abc.ABC):
 The `forward` method is called in each attention layer of the diffusion model during the image generation, and we use it to modify the weights of the attention. Our method (See Section 3 of our [paper](https://arxiv.org/abs/2208.01626)) edits images with the procedure above, and  each different prompt edit type modifies the weights of the attention in a different manner.
 
 The general flow of our code is as follows, with variations based on the attention control type:
-```
+
+``` python
 prompts = ["A painting of a squirrel eating a burger", ...]
 controller = AttentionControl(prompts, ...)
 run_and_display(prompts, controller, ...)
@@ -48,8 +47,8 @@ In this case, the user adds new tokens to the prompt, e.g., editing the prompt `
 In this case, the user changes the weight of certain tokens in the prompt, e.g., for the prompt `"A photo of a poppy field at night"`, strengthen or weaken the extent to which the word `night` affects the resulting image. For this we define the class `AttentionReweight`.
 
 
-## Attention Control Options 
- * `cross_replace_steps`: specifies the fraction of steps to edit the cross attention maps. Can also be set to a dictionary `[str:float]` which specifies fractions for different words in the prompt. 
+## Attention Control Options
+ * `cross_replace_steps`: specifies the fraction of steps to edit the cross attention maps. Can also be set to a dictionary `[str:float]` which specifies fractions for different words in the prompt.
  * `self_replace_steps`: specifies the fraction of steps to replace the self attention masp.
  * `local_blend` (optional):  `LocalBlend` object which is used to make local edits. `LocalBlend` is initialized with the words from each prompt that correspond with the region in the image we want to edit.
  * `equalizer`: used for attention Re-weighting only. A vector of coefficients to multiply each cross-attention weight
@@ -68,3 +67,6 @@ In this case, the user changes the weight of certain tokens in the prompt, e.g.,
 ## Disclaimer
 
 This is not an officially supported Google product.
+
+[p2p-ldm]: "./prompt-to-prompt_ldm.ipynb"
+[p2p-stable]: "./prompt-to-prompt_stable.ipynb"
