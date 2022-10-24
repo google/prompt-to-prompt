@@ -20,6 +20,7 @@ In order to get started, we recommend taking a look at our notebooks: [**prompt-
 ## Prompt Edits
 
 In our notebooks, we perform our main logic by implementing the abstract class `AttentionControl` object, of the following form:
+
 ``` python
 class AttentionControl(abc.ABC):
     @abc.abstractmethod
@@ -55,12 +56,12 @@ In this case, the user changes the weight of certain tokens in the prompt, e.g.,
 
 ## Citation
 
-```
+``` bibtex
 @article{hertz2022prompt,
-  title={Prompt-to-Prompt Image Editing with Cross Attention Control},
-  author={Hertz, Amir and Mokady, Ron and Tenenbaum, Jay and Aberman, Kfir and Pritch, Yael and Cohen-Or, Daniel},
-  journal={arXiv preprint arXiv:2208.01626},
-  year={2022}
+  title = {Prompt-to-Prompt Image Editing with Cross Attention Control},
+  author = {Hertz, Amir and Mokady, Ron and Tenenbaum, Jay and Aberman, Kfir and Pritch, Yael and Cohen-Or, Daniel},
+  journal = {arXiv preprint arXiv:2208.01626},
+  year = {2022},
 }
 ```
 
