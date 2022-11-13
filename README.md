@@ -69,5 +69,5 @@ In this case, the user changes the weight of certain tokens in the prompt, e.g.,
 
 This is not an officially supported Google product.
 
-[p2p-ldm]: "./prompt-to-prompt_ldm.ipynb"
-[p2p-stable]: "./prompt-to-prompt_stable.ipynb"
+[p2p-ldm]: ./prompt-to-prompt_ldm.ipynb
+[p2p-stable]: ./prompt-to-prompt_stable.ipynb
