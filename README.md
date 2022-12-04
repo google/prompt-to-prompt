@@ -2,6 +2,9 @@
 
 > *Latent Diffusion* and *Stable Diffusion* Implementation
 
+## :partying_face: ***New:*** :partying_face: Code for Null-Text Inversion is now provided [here](#null-text-inversion-for-editing-real-images)
+
+
 ![teaser](docs/teaser.png)
 ### [Project Page](https://prompt-to-prompt.github.io)&ensp;&ensp;&ensp;[Paper](https://prompt-to-prompt.github.io/ptp_files/Prompt-to-Prompt_preprint.pdf)
 
@@ -65,9 +68,36 @@ In this case, the user changes the weight of certain tokens in the prompt, e.g.,
 }
 ```
 
+# Null-Text Inversion for Editing Real Images
+
+### [Project Page](https://null-text-inversion.github.io/)&ensp;&ensp;&ensp;[Paper](https://arxiv.org/abs/2211.09794)
+
+
+
+Null-text inversion enables intuitive text-based editing of **real images** with the Stable Diffusion model. We use an initial DDIM inversion as an anchor for our optimization which only tunes the null-text embedding used in classifier-free guidance.
+
+
+![teaser](docs/null_text_teaser.png)
+
+## Editing Real Images
+
+Prompt-to-Prompt editing of real images by first using Null-text inversion is provided in this [**Notebooke**][null_text].
+
+
+``` bibtex
+@article{mokady2022null,
+  title={Null-text Inversion for Editing Real Images using Guided Diffusion Models},
+  author={Mokady, Ron and Hertz, Amir and Aberman, Kfir and Pritch, Yael and Cohen-Or, Daniel},
+  journal={arXiv preprint arXiv:2211.09794},
+  year={2022}
+}
+```
+
+
 ## Disclaimer
 
 This is not an officially supported Google product.
 
 [p2p-ldm]: prompt-to-prompt_ldm.ipynb
 [p2p-stable]: prompt-to-prompt_stable.ipynb
+[null_text]: null_text_w_ptp.ipynb
