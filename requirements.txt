@@ -3,3 +3,4 @@ transformers
 ftfy
 opencv-python
 ipywidgets
+accelerate
