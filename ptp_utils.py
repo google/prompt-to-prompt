@@ -14,11 +14,13 @@
 
 import numpy as np
 import torch
+import math
 from PIL import Image, ImageDraw, ImageFont
 import cv2
 from typing import Optional, Union, Tuple, List, Callable, Dict
 from IPython.display import display
 from tqdm.notebook import tqdm
+
 
 
 def text_under_image(image: np.ndarray, text: str, text_color: Tuple[int, int, int] = (0, 0, 0)):
@@ -30,7 +32,7 @@ def text_under_image(image: np.ndarray, text: str, text_color: Tuple[int, int, i
     img[:h] = image
     textsize = cv2.getTextSize(text, font, 1, 2)[0]
     text_x, text_y = (w - textsize[0]) // 2, h + offset - textsize[1] // 2
-    cv2.putText(img, text, (text_x, text_y ), font, 1, text_color, 2)
+    cv2.putText(img, text, (text_x, text_y), font, 1, text_color, 2)
     return img
 
 
@@ -61,7 +63,7 @@ def view_images(images, num_rows=1, offset_ratio=0.02):
     display(pil_img)
 
 
-def diffusion_step(model, controller, latents, context, t, guidance_scale, low_resource=False):
+def diffusion_step(model, controller, latents, context, t, guidance_scale, optimize_matrix=None, low_resource=False):
     if low_resource:
         noise_pred_uncond = model.unet(latents, t, encoder_hidden_states=context[0])["sample"]
         noise_prediction_text = model.unet(latents, t, encoder_hidden_states=context[1])["sample"]
@@ -69,7 +71,11 @@ def diffusion_step(model, controller, latents, context, t, guidance_scale, low_r
         latents_input = torch.cat([latents] * 2)
         noise_pred = model.unet(latents_input, t, encoder_hidden_states=context)["sample"]
         noise_pred_uncond, noise_prediction_text = noise_pred.chunk(2)
-    noise_pred = noise_pred_uncond + guidance_scale * (noise_prediction_text - noise_pred_uncond)
+    if optimize_matrix is None:
+        noise_pred = noise_pred_uncond + guidance_scale * (noise_prediction_text - noise_pred_uncond)
+    else:
+        # noise_pred = optimize_matrix * noise_prediction_text
+        noise_pred = noise_pred_uncond + optimize_matrix * (noise_prediction_text - noise_pred_uncond)
     latents = model.scheduler.step(noise_pred, t, latents)["prev_sample"]
     latents = controller.step_callback(latents)
     return latents
@@ -90,51 +96,51 @@ def init_latent(latent, model, height, width, generator, batch_size):
             (1, model.unet.in_channels, height // 8, width // 8),
             generator=generator,
         )
-    latents = latent.expand(batch_size,  model.unet.in_channels, height // 8, width // 8).to(model.device)
+    latents = latent.expand(batch_size, model.unet.in_channels, height // 8, width // 8).to(model.device)
     return latent, latents
 
 
 @torch.no_grad()
 def text2image_ldm(
-    model,
-    prompt:  List[str],
-    controller,
-    num_inference_steps: int = 50,
-    guidance_scale: Optional[float] = 7.,
-    generator: Optional[torch.Generator] = None,
-    latent: Optional[torch.FloatTensor] = None,
+        model,
+        prompt: List[str],
+        controller,
+        num_inference_steps: int = 50,
+        guidance_scale: Optional[float] = 7.,
+        generator: Optional[torch.Generator] = None,
+        latent: Optional[torch.FloatTensor] = None,
 ):
     register_attention_control(model, controller)
     height = width = 256
     batch_size = len(prompt)
-    
+
     uncond_input = model.tokenizer([""] * batch_size, padding="max_length", max_length=77, return_tensors="pt")
     uncond_embeddings = model.bert(uncond_input.input_ids.to(model.device))[0]
-    
+
     text_input = model.tokenizer(prompt, padding="max_length", max_length=77, return_tensors="pt")
     text_embeddings = model.bert(text_input.input_ids.to(model.device))[0]
     latent, latents = init_latent(latent, model, height, width, generator, batch_size)
     context = torch.cat([uncond_embeddings, text_embeddings])
-    
+
     model.scheduler.set_timesteps(num_inference_steps)
     for t in tqdm(model.scheduler.timesteps):
         latents = diffusion_step(model, controller, latents, context, t, guidance_scale)
-    
+
     image = latent2image(model.vqvae, latents)
-   
+
     return image, latent
 
 
 @torch.no_grad()
 def text2image_ldm_stable(
-    model,
-    prompt: List[str],
-    controller,
-    num_inference_steps: int = 50,
-    guidance_scale: float = 7.5,
-    generator: Optional[torch.Generator] = None,
-    latent: Optional[torch.FloatTensor] = None,
-    low_resource: bool = False,
+        model,
+        prompt: List[str],
+        controller,
+        num_inference_steps: int = 50,
+        guidance_scale: float = 7.5,
+        generator: Optional[torch.Generator] = None,
+        latent: Optional[torch.FloatTensor] = None,
+        low_resource: bool = False,
 ):
     register_attention_control(model, controller)
     height = width = 512
@@ -153,19 +159,19 @@ def text2image_ldm_stable(
         [""] * batch_size, padding="max_length", max_length=max_length, return_tensors="pt"
     )
     uncond_embeddings = model.text_encoder(uncond_input.input_ids.to(model.device))[0]
-    
+
     context = [uncond_embeddings, text_embeddings]
     if not low_resource:
         context = torch.cat(context)
     latent, latents = init_latent(latent, model, height, width, generator, batch_size)
-    
+
     # set timesteps
     model.scheduler.set_timesteps(num_inference_steps)
     for t in tqdm(model.scheduler.timesteps):
         latents = diffusion_step(model, controller, latents, context, t, guidance_scale, low_resource)
-    
+
     image = latent2image(model.vae, latents)
-  
+
     return image, latent
 
 
@@ -176,10 +182,10 @@ def register_attention_control(model, controller):
             to_out = self.to_out[0]
         else:
             to_out = self.to_out
-        
-        def forward(hidden_states, encoder_hidden_states=None, attention_mask=None,temb=None,):
+
+        def forward(hidden_states, encoder_hidden_states=None, attention_mask=None, temb=None, ):
             is_cross = encoder_hidden_states is not None
-            
+
             residual = hidden_states
 
             if self.spatial_norm is not None:
@@ -231,7 +237,9 @@ def register_attention_control(model, controller):
             hidden_states = hidden_states / self.rescale_output_factor
 
             return hidden_states
+
         return forward
+
     class DummyController:
 
         def __call__(self, *args):
@@ -264,7 +272,7 @@ def register_attention_control(model, controller):
 
     controller.num_att_layers = cross_att_count
 
-    
+
 def get_word_inds(text: str, word_place: int, tokenizer):
     split_text = text.split(" ")
     if type(word_place) is str:
@@ -287,7 +295,7 @@ def get_word_inds(text: str, word_place: int, tokenizer):
 
 
 def update_alpha_time_word(alpha, bounds: Union[float, Tuple[float, float]], prompt_ind: int,
-                           word_inds: Optional[torch.Tensor]=None):
+                           word_inds: Optional[torch.Tensor] = None):
     if type(bounds) is float:
         bounds = 0, bounds
     start, end = int(bounds[0] * alpha.shape[0]), int(bounds[1] * alpha.shape[0])
@@ -312,9 +320,18 @@ def get_time_words_attention_alpha(prompts, num_steps,
                                                   i)
     for key, item in cross_replace_steps.items():
         if key != "default_":
-             inds = [get_word_inds(prompts[i], key, tokenizer) for i in range(1, len(prompts))]
-             for i, ind in enumerate(inds):
-                 if len(ind) > 0:
+            inds = [get_word_inds(prompts[i], key, tokenizer) for i in range(1, len(prompts))]
+            for i, ind in enumerate(inds):
+                if len(ind) > 0:
                     alpha_time_words = update_alpha_time_word(alpha_time_words, item, i, ind)
     alpha_time_words = alpha_time_words.reshape(num_steps + 1, len(prompts) - 1, 1, 1, max_num_words)
     return alpha_time_words
+
+def PSNR(original, compressed):
+    mse = np.mean((original - compressed) ** 2)
+    if(mse == 0):  # MSE is zero means no noise is present in the signal .
+                  # Therefore PSNR have no importance.
+        return 100
+    max_pixel = 255.0
+    psnr = 20 * math.log10(max_pixel / math.sqrt(mse))
+    return psnr
