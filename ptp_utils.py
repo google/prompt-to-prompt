@@ -63,7 +63,7 @@ def view_images(images, num_rows=1, offset_ratio=0.02):
     display(pil_img)
 
 
-def diffusion_step(model, controller, latents, context, t, guidance_scale, optimize_matrix=None, low_resource=False):
+def diffusion_step(model, controller, latents, context, t, guidance_scale, optimize_matrix=None, optimize_matrix_=None, low_resource=False):
     if low_resource:
         noise_pred_uncond = model.unet(latents, t, encoder_hidden_states=context[0])["sample"]
         noise_prediction_text = model.unet(latents, t, encoder_hidden_states=context[1])["sample"]
@@ -71,11 +71,16 @@ def diffusion_step(model, controller, latents, context, t, guidance_scale, optim
         latents_input = torch.cat([latents] * 2)
         noise_pred = model.unet(latents_input, t, encoder_hidden_states=context)["sample"]
         noise_pred_uncond, noise_prediction_text = noise_pred.chunk(2)
-    if optimize_matrix is None:
+    if (optimize_matrix is None) and (optimize_matrix_ is None):
+        print("Zero W Matrix...")
         noise_pred = noise_pred_uncond + guidance_scale * (noise_prediction_text - noise_pred_uncond)
-    else:
+    elif (optimize_matrix is not None) and (optimize_matrix_ is None):
+        print("One W Matrix...")
         # noise_pred = optimize_matrix * noise_prediction_text
         noise_pred = noise_pred_uncond + optimize_matrix * (noise_prediction_text - noise_pred_uncond)
+    elif (optimize_matrix is not None) and (optimize_matrix_ is not None):
+        print("Two W Matrix...")
+        noise_pred =  optimize_matrix_ * noise_pred_uncond + optimize_matrix * noise_prediction_text
     latents = model.scheduler.step(noise_pred, t, latents)["prev_sample"]
     latents = controller.step_callback(latents)
     return latents
