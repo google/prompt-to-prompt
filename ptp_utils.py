@@ -63,7 +63,7 @@ def view_images(images, num_rows=1, offset_ratio=0.02):
     display(pil_img)
 
 
-def diffusion_step(model, controller, latents, context, t, guidance_scale, optimize_matrix=None, optimize_matrix_=None, low_resource=False):
+def diffusion_step(model, controller, latents, context, t, guidance_scale, low_resource=False, optimize_matrix=None, optimize_matrix_=None):
     if low_resource:
         noise_pred_uncond = model.unet(latents, t, encoder_hidden_states=context[0])["sample"]
         noise_prediction_text = model.unet(latents, t, encoder_hidden_states=context[1])["sample"]
