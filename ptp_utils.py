@@ -76,8 +76,8 @@ def diffusion_step(model, controller, latents, context, t, guidance_scale, low_r
         noise_pred = noise_pred_uncond + guidance_scale * (noise_prediction_text - noise_pred_uncond)
     elif (optimize_matrix is not None) and (optimize_matrix_ is None):
         print("One W Matrix...")
-        # noise_pred = optimize_matrix * noise_prediction_text
         noise_pred = noise_pred_uncond + optimize_matrix * (noise_prediction_text - noise_pred_uncond)
+        # noise_pred = noise_pred_uncond + torch.matmul(optimize_matrix, (noise_prediction_text - noise_pred_uncond))
     elif (optimize_matrix is not None) and (optimize_matrix_ is not None):
         print("Two W Matrix...")
         noise_pred =  optimize_matrix_ * noise_pred_uncond + optimize_matrix * noise_prediction_text
