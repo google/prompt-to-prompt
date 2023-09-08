@@ -65,8 +65,10 @@ def view_images(images, num_rows=1, offset_ratio=0.02):
 
 def diffusion_step(model, controller, latents, context, t, guidance_scale, low_resource=False, optimize_matrix=None, optimize_matrix_=None):
     if low_resource:
-        noise_pred_uncond = model.unet(latents, t, encoder_hidden_states=context[0])["sample"]
+        controller.cond = True
         noise_prediction_text = model.unet(latents, t, encoder_hidden_states=context[1])["sample"]
+        controller.cond = False
+        noise_pred_uncond = model.unet(latents, t, encoder_hidden_states=context[0])["sample"]
     else:
         latents_input = torch.cat([latents] * 2)
         noise_pred = model.unet(latents_input, t, encoder_hidden_states=context)["sample"]
@@ -188,7 +190,7 @@ def register_attention_control(model, controller):
         else:
             to_out = self.to_out
 
-        def forward(hidden_states, encoder_hidden_states=None, attention_mask=None, temb=None, ):
+        def forward(hidden_states, encoder_hidden_states=None, attention_mask=None, temb=None,):
             is_cross = encoder_hidden_states is not None
 
             residual = hidden_states
