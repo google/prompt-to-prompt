@@ -74,14 +74,14 @@ def diffusion_step(model, controller, latents, context, t, guidance_scale, low_r
         noise_pred = model.unet(latents_input, t, encoder_hidden_states=context)["sample"]
         noise_pred_uncond, noise_prediction_text = noise_pred.chunk(2)
     if (optimize_matrix is None) and (optimize_matrix_ is None):
-        print("Zero W Matrix...")
+        # print("Zero W Matrix...")
         noise_pred = noise_pred_uncond + guidance_scale * (noise_prediction_text - noise_pred_uncond)
     elif (optimize_matrix is not None) and (optimize_matrix_ is None):
-        print("One W Matrix...")
+        # print("One W Matrix...")
         noise_pred = noise_pred_uncond + optimize_matrix * (noise_prediction_text - noise_pred_uncond)
         # noise_pred = noise_pred_uncond + torch.matmul(optimize_matrix, (noise_prediction_text - noise_pred_uncond))
     elif (optimize_matrix is not None) and (optimize_matrix_ is not None):
-        print("Two W Matrix...")
+        # print("Two W Matrix...")
         noise_pred =  optimize_matrix_ * noise_pred_uncond + optimize_matrix * noise_prediction_text
     latents = model.scheduler.step(noise_pred, t, latents)["prev_sample"]
     latents = controller.step_callback(latents)
