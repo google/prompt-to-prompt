@@ -341,3 +341,15 @@ def PSNR(original, compressed):
     max_pixel = 255.0
     psnr = 20 * math.log10(max_pixel / math.sqrt(mse))
     return psnr
+
+def PSNR_RGB(image1, image2):
+    mseR = np.mean(image1[:,:,0] - image2[:,:,0] ** 2)
+    mseG = np.mean(image1[:,:,1] - image2[:,:,1] ** 2)
+    mseB = np.mean(image1[:,:,2] - image2[:,:,2] ** 2)
+
+    mse = (mseR + mseG + mseB) / 3
+    if (mse == 0):
+        return 100
+    max_pixel = 255.0
+    psnr = 10 * math.log10(max_pixel / math.sqrt(mse))
+    return psnr
