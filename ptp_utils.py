@@ -333,23 +333,3 @@ def get_time_words_attention_alpha(prompts, num_steps,
                     alpha_time_words = update_alpha_time_word(alpha_time_words, item, i, ind)
     alpha_time_words = alpha_time_words.reshape(num_steps + 1, len(prompts) - 1, 1, 1, max_num_words)
     return alpha_time_words
-
-def PSNR(original, compressed):
-    mse = np.mean((original - compressed) ** 2)
-    if(mse == 0):
-        return 100
-    max_pixel = 255.0
-    psnr = 20 * math.log10(max_pixel / math.sqrt(mse))
-    return psnr
-
-def PSNR_RGB(image1, image2):
-    mseR = np.mean(image1[:,:,0] - image2[:,:,0] ** 2)
-    mseG = np.mean(image1[:,:,1] - image2[:,:,1] ** 2)
-    mseB = np.mean(image1[:,:,2] - image2[:,:,2] ** 2)
-
-    mse = (mseR + mseG + mseB) / 3
-    if (mse == 0):
-        return 100
-    max_pixel = 255.0
-    psnr = 10 * math.log10(max_pixel / math.sqrt(mse))
-    return psnr
