@@ -79,7 +79,10 @@ def diffusion_step(model, controller, latents, context, t, guidance_scale, low_r
     elif (optimize_matrix is not None) and (optimize_matrix_ is None):
         # print("One W Matrix...")
         noise_pred = noise_pred_uncond + optimize_matrix * (noise_prediction_text - noise_pred_uncond)
-        # noise_pred = noise_pred_uncond + torch.matmul(optimize_matrix, (noise_prediction_text - noise_pred_uncond))
+        # identity_tensor = torch.ones(64).unsqueeze(0).unsqueeze(0).to(model.device)  # Shape: (1, 1, 64, 64)
+        # identity_tensor = identity_tensor.expand(1, 4, 64, 64).to(model.device) 
+        # w_fix = 7.5 * identity_tensor
+        # noise_pred = w_fix * noise_prediction_text + optimize_matrix * noise_pred_uncond
     elif (optimize_matrix is not None) and (optimize_matrix_ is not None):
         # print("Two W Matrix...")
         noise_pred =  optimize_matrix_ * noise_pred_uncond + optimize_matrix * noise_prediction_text
