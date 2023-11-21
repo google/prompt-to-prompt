@@ -18,6 +18,8 @@ The code was tested on a Tesla V100 16GB but should work on other cards with at 
 
 In order to get started, we recommend taking a look at our notebooks: [**prompt-to-prompt_ldm**][p2p-ldm] and [**prompt-to-prompt_stable**][p2p-stable]. The notebooks contain end-to-end examples of usage of prompt-to-prompt on top of *Latent Diffusion* and *Stable Diffusion* respectively. Take a look at these notebooks to learn how to use the different types of prompt edits and understand the API.
 
+[![Replicate](https://replicate.com/cjwbw/prompt-to-prompt/badge)](https://replicate.com/cjwbw/prompt-to-prompt)
+
 ## Prompt Edits
 
 In our notebooks, we perform our main logic by implementing the abstract class `AttentionControl` object, of the following form:
