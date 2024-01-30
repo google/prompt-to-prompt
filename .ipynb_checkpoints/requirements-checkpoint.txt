@@ -1,0 +1,9 @@
+diffusers==0.17.1
+transformers
+ftfy
+opencv-python
+ipywidgets
+accelerate
+scikit-image
+torchvision
+matplotlib
